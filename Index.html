@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note app</title>
+    <link rel="stylesheet" href="./main.css">
+</head>
+
+<body>
+    <header>
+        <div class="header_title"> Notes-app</div>
+    </header>
+    <div class="search-wrapper">
+        <input type="search" id="search" placeholder="Search" data-search>
+    </div>
+    <div id="app">
+        <button class="add-note" type="button">+</button>
+    </div>
+
+    <template class="template1">
+        <div class="note-list">
+        </div>
+    </template>
+
+    <template class="template2">
+        <div class="container" draggable="true">
+            <textarea class="note" placeholder="Empty Note"></textarea>
+            <button class="note-save" type="button">Save</button>
+            <button class="note-remove" type="button">Remove</button>
+            <div class="note-creation"></div>
+            <div class="note-update"></div>
+        </div>
+    </template>
+
+    <script src="./main.js" type="module" defer></script>
+</body>
+
+</html>
