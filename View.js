@@ -1,8 +1,7 @@
-import {pubsub} from './pubsub.js'
+import { pubsub } from './pubsub.js'
 
 export default class View {
     constructor() {
-        console.log('view')
         this.root = document.querySelector('#app');
         this.notesList = document.querySelector('.note-list');
         this.btnAddNote = this.root.querySelector(".add-note");
@@ -12,34 +11,23 @@ export default class View {
         this.temporaryText = '';
     }
 
-    get noteText() {
-        const noteText = document.querySelector('.note');
-        return noteText.value;
-    }
-
     displayNotes(notes) {
         this.notesList.innerHTML = "";
 
-        if (notes.length === 0) {
-            const p = document.createElement('p');
-            p.textContent = 'There are any notes yet';
-            this.notes.append(p);
-        } else {
-            notes.forEach(note => {
-                const html = this.createListItemHTML(note.id, note.content, note.create, note.updated = new Date());
-                this.notesList.appendChild(html);
-            });
-        }
+        notes.forEach(note => {
+            const html = this.createListItemHTML(note.id, note.content, note.create, note.updated);
+            this.notesList.appendChild(html);
+        });
     }
 
-    createListItemHTML(id, content, created, updated) {
-        const template2 = document.querySelector(".template2").content;
+    createListItemHTML(id, content, created, updated = new Date()) {
+        const template = document.querySelector(".template").content;
         const fragment = document.createDocumentFragment();
 
-        const cont = template2.querySelector(".container");
-        const note = template2.querySelector(".note");
-        const noteCreate = template2.querySelector(".note-creation");
-        const noteUpdate = template2.querySelector(".note-update");
+        const cont = template.querySelector(".container");
+        const note = template.querySelector(".note");
+        const noteCreate = template.querySelector(".note-creation");
+        const noteUpdate = template.querySelector(".note-update");
 
         cont.setAttribute("data-note-id", id);
         cont.setAttribute("id", id);
@@ -49,7 +37,7 @@ export default class View {
         noteUpdate.setAttribute("id", id);
         noteUpdate.innerHTML = `Updated: ${updated.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}`;
 
-        const clone = template2.cloneNode(true);
+        const clone = template.cloneNode(true);
         fragment.appendChild(clone);
         return fragment;
     }
@@ -64,23 +52,24 @@ export default class View {
     bindDeleteNote() {
         this.notesList.addEventListener('click', item => {
             item.preventDefault();
-            pubsub.publish('deleteNote',{ 
+            pubsub.publish('deleteNote', {
                 class: item.target.className,
-                 id:item.target.parentElement.dataset.noteId
-                 });
+                id: item.target.parentElement.dataset.noteId
+            });
         });
     }
 
     bindEditNote() {
         this.notesList.addEventListener('click', item => {
             item.preventDefault();
-            if(item.target.className === 'note-save'){
-                pubsub.publish(`editNote`, { content: item.target.previousElementSibling.value.trim(), id: item.target.parentElement.dataset.noteId});
+            if (item.target.className === 'note-save') {
+                const date = item.target.parentElement.querySelector('.note-update').textContent;
+                pubsub.publish(`editNote`, { content: item.target.previousElementSibling.value.trim(), id: item.target.parentElement.dataset.noteId, updatedUndo: date });
             }
         });
 
         this.notesList.addEventListener('keydown', function (e) {
-             
+
             if (e.key == 'Tab' && e.target.className === "note") {
                 e.preventDefault();
                 let start = e.target.selectionStart;
@@ -92,7 +81,8 @@ export default class View {
         });
     }
 
-    filterNotes(found, value){
+    filterNotes(found, value) {
+        const containers = document.getElementsByClassName("container");
         found.forEach(element => {
             let container = document.getElementById(`${element.id}`);
             container.classList.toggle("hide", element.id);
@@ -107,15 +97,23 @@ export default class View {
 
     }
 
-    bindUndo(){
-        this.btnUndo.addEventListener('click', event => {
+    bindUndo() {
+        this.btnUndo.addEventListener('click', () => {
             pubsub.publish('undoAction');
+        });
+
+        window.addEventListener('keydown', event => {
+            if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
+                pubsub.publish('undoAction');
+            }
         });
     }
 
-    bindSearchNote() {
-        const containers = document.getElementsByClassName("container");
+    disableUndo(value) {
+        this.btnUndo.disabled = value;
+    }
 
+    bindSearchNote() {
         this.searchInput.addEventListener("input", event => {
             const value = event.target.value.toLowerCase();
             pubsub.publish(`searchNote`, value);
@@ -160,10 +158,10 @@ export default class View {
                     });
 
                     pubsub.publish(`dragDrop`, newIdOrder);
+                    newIdOrder = [];
                 }
             });
         }
         addEvents(this.notesList);
     }
-
 }
