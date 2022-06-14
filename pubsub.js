@@ -1,24 +1,22 @@
 export const pubsub = {
     observers: {},
-    subUid: -1,
 
-    subscribe: function (evName, fn){
+    subscribe: function (evName, fn) {
         this.observers[evName] = this.observers[evName] || [];
         this.observers[evName].push(fn);
     },
 
-    unsubscribe: function (evName, fn){
-        if(this.observers){
+    unsubscribe: function (evName, fn) {
+        if (this.observers) {
             this.observers[evName] = this.observers[evName].filter(f => f !== fn);
         }
     },
 
-    publish: function(evName, data) {
-        if(this.observers[evName]){
+    publish: function (evName, data) {
+        if (this.observers[evName]) {
             this.observers[evName].forEach(element => {
                 element(data);
             });
         }
     }
-
 } 
