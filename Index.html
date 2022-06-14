@@ -17,15 +17,14 @@
         <input type="search" id="search" placeholder="Search" data-search>
     </div>
     <div id="app">
-        <button class="add-note" type="button">+</button>
+        <div class="button-container">
+            <button class="add-note" type="button">+</button>
+            <button class="undo" type="button">undo</button>
+        </div>
+        <div class="note-list"></div>
     </div>
 
-    <template class="template1">
-        <div class="note-list">
-        </div>
-    </template>
-
-    <template class="template2">
+    <template class="template">
         <div class="container" draggable="true">
             <textarea class="note" placeholder="Empty Note"></textarea>
             <button class="note-save" type="button">Save</button>
@@ -34,8 +33,7 @@
             <div class="note-update"></div>
         </div>
     </template>
-
-    <script src="./main.js" type="module" defer></script>
+    <script src="./Presenter.js" type="module"></script>
 </body>
 
 </html>
