@@ -1,16 +1,14 @@
 import View from './View.js'
 import Model from './Model.js'
-import {pubsub} from './pubsub.js'
+import { pubsub } from './pubsub.js'
 import CommandManager from './command.js';
 
 class Presenter {
     constructor(model, view) {
-        console.log('controller');
         this.model = model;
         this.view = view;
         this.manager = new CommandManager();
 
-        // this.model.bindNotesListChanged(this.onNotesListChanged);
         this.view.bindAddNote(this.handleAddNote);
         this.view.bindDeleteNote(this.handleDeleteNote);
         this.view.bindEditNote(this.handleEditNote);
@@ -19,9 +17,9 @@ class Presenter {
         this.view.bindUndo(this.handleUndo);
 
         //Display initial notes
-        this.onNotesListChanged(this.model.notes);
+        this.onNotesListChanged(this.model.getAllNotes());
 
-
+        //Subscribers
         pubsub.subscribe(`deleteNote`, this.handleDeleteNote);
         pubsub.subscribe(`addNote`, this.handleAddNote);
         pubsub.subscribe(`editNote`, this.handleEditNote);
@@ -55,7 +53,6 @@ class Presenter {
         }
     }
 
-
     handleSearchNote = (noteToSearch) => {
         let list = this.model.searchNote(noteToSearch);
         const found = list.filter(el => el != undefined);
@@ -63,84 +60,107 @@ class Presenter {
     }
 
     handleDragDrop = (newOrder) => {
-        this.model.dragDrogNote(newOrder);
-
+        const dragNoteCommand = new DragCommand(this.model, this.view);
+        this.manager.executeCommand(dragNoteCommand, newOrder);
     }
 
     handleUndo = () => {
-        this.manager.undo();
+        let value;
+        if (this.manager.history.length > 0) {
+            value = false;
+            this.manager.undo();
+        } else if (this.manager.history.length <= 0) {
+            value = true;
+        }
+        this.view.disableUndo(value);
     }
-
-    //Control z event ?
-
 }
 
 //Commands
-class DeleteCommand{
-    constructor(id, model, view){
+class DeleteCommand {
+    constructor(id, model, view) {
         this.deletedNoteId = id;
         this.model = model;
         this.view = view;
         this.noteDeleted = [];
+        this.notes = JSON.parse(JSON.stringify(this.model.getAllNotes()));
     }
 
-    execute(){
-        const noteToSave = this.model.notes.filter(element => element.id == this.deletedNoteId);
-        this.noteDeleted.push(noteToSave);
-        const newNotes = this.model.deleteNote(this.deletedNoteId); 
+    execute() {
+        const noteToSave = this.notes.filter(element => element.id == this.deletedNoteId);
+        this.noteDeleted.push(noteToSave[0]);
+        const newNotes = this.model.deleteNote(this.deletedNoteId);
         this.view.displayNotes(newNotes);
-        
+
     }
 
-    undo(){
-        this.model.addNote(this.noteDeleted[ this.noteDeleted.length - 1]);
-        this.noteDeleted.pop();
-        this.view.displayNotes(this.model.notes);
+    undo() {
+        const lastNote = this.noteDeleted.pop();
+        this.model.addNote(lastNote);
+        this.view.displayNotes(this.model.getAllNotes());
     }
 }
 
-class AddCommand{
-    constructor(model, view){
+class AddCommand {
+    constructor(model, view) {
         this.model = model;
         this.view = view;
         this.newNote;
     }
 
-    execute(){
+    execute() {
         this.newNote = this.model.addNote();
-        this.view.displayNotes(this.model.notes);
+        this.view.displayNotes(this.model.getAllNotes());
     }
 
-    undo (){
+    undo() {
         const newNotes = this.model.deleteNote(this.newNote.id);
         this.view.displayNotes(newNotes);
     }
 }
 
-//This is not working.....
-class EditCommand{
-    constructor(model, view){
+class EditCommand {
+    constructor(model, view) {
         this.model = model;
         this.view = view;
-        this.notes = Object.assign({}, model.notes);
         this.previousNote = [];
     }
 
-    execute(args){
+    execute(args) {
         const id = args.id;
-        console.log(this.notes);
-       
-        // this.previousNote.push(noteToSave);
-        // console.log(this.previousNote);
-        // this.model.saveNote({ id: args.id, content: args.content});
-        // this.view.displayNotes(this.model.notes);
+        let noteToSave = this.model.getAllNotes().filter(element => element.id == args.id);
+        const copy = JSON.parse(JSON.stringify(noteToSave));
+        this.previousNote.push(copy);
+        this.model.saveNote({ id: args.id, content: args.content });
+        this.view.displayNotes(this.model.getAllNotes());
     }
 
-    undo(){
-        console.log(this.previousNote)
-        this.model.saveNote({ id: this.previousNote.id, content: this.previousNote.content });
-        this.view.displayNotes(this.model.notes);
+    undo() {
+        const lastNote = this.previousNote.pop();
+        lastNote[0].undoUpdate = lastNote[0].updated;
+        this.model.saveNote(lastNote[0]);
+        this.view.displayNotes(this.model.getAllNotes());
     }
 }
 
+
+class DragCommand {
+    constructor(model, view) {
+        this.model = model;
+        this.view = view;
+        this.oldOrder = JSON.parse(JSON.stringify(this.model.getAllNotes()));
+    }
+
+    execute(newOrder) {
+        this.model.dragDropNote(newOrder);
+    }
+
+    undo() {
+        let oldIdOrder = [];
+        this.oldOrder.forEach(element => oldIdOrder.push(element.id));
+        this.model.dragDropNote(oldIdOrder);
+        oldIdOrder = [];
+        this.view.displayNotes(this.oldOrder);
+    }
+}
 const app = new Presenter(new Model(), new View());
