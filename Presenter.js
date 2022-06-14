@@ -9,12 +9,12 @@ class Presenter {
         this.view = view;
         this.manager = new CommandManager();
 
-        this.view.bindAddNote(this.handleAddNote);
-        this.view.bindDeleteNote(this.handleDeleteNote);
-        this.view.bindEditNote(this.handleEditNote);
-        this.view.bindSearchNote(this.handleSearchNote);
-        this.view.bindDragDrog(this.handleDragDrop);
-        this.view.bindUndo(this.handleUndo);
+        this.view.bindAddNote();
+        this.view.bindDeleteNote();
+        this.view.bindEditNote();
+        this.view.bindSearchNote();
+        this.view.bindDragDrog();
+        this.view.bindUndo();
 
         //Display initial notes
         this.onNotesListChanged(this.model.getAllNotes());
@@ -29,7 +29,6 @@ class Presenter {
     }
 
     onNotesListChanged = notes => {
-
         this.view.displayNotes(notes);
     }
 
@@ -47,8 +46,8 @@ class Presenter {
         if (args.class === 'note-remove') {
             let doDelete = confirm("Are you sure you want to delete this note?");
             if (doDelete) {
-                const deleteNoteCommand = new DeleteCommand(args.id, this.model, this.view);
-                this.manager.executeCommand(deleteNoteCommand);
+                const deleteNoteCommand = new DeleteCommand(this.model, this.view);
+                this.manager.executeCommand(deleteNoteCommand, args.id);
             }
         }
     }
@@ -78,18 +77,17 @@ class Presenter {
 
 //Commands
 class DeleteCommand {
-    constructor(id, model, view) {
-        this.deletedNoteId = id;
+    constructor(model, view) {
         this.model = model;
         this.view = view;
         this.noteDeleted = [];
         this.notes = JSON.parse(JSON.stringify(this.model.getAllNotes()));
     }
 
-    execute() {
-        const noteToSave = this.notes.filter(element => element.id == this.deletedNoteId);
+    execute(id) {
+        const noteToSave = this.notes.filter(element => element.id == id);
         this.noteDeleted.push(noteToSave[0]);
-        const newNotes = this.model.deleteNote(this.deletedNoteId);
+        const newNotes = this.model.deleteNote(id);
         this.view.displayNotes(newNotes);
 
     }
@@ -128,10 +126,11 @@ class EditCommand {
 
     execute(args) {
         const id = args.id;
-        let noteToSave = this.model.getAllNotes().filter(element => element.id == args.id);
+        const content = args.content;
+        let noteToSave = this.model.getAllNotes().filter(element => element.id == id);
         const copy = JSON.parse(JSON.stringify(noteToSave));
         this.previousNote.push(copy);
-        this.model.saveNote({ id: args.id, content: args.content });
+        this.model.saveNote({ id, content });
         this.view.displayNotes(this.model.getAllNotes());
     }
 
