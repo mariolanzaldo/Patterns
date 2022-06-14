@@ -1,15 +1,14 @@
 export default class CommandManager {
-    constructor(){
+    constructor() {
         this.history = [];
     }
 
-    executeCommand(command, ...args){
+    executeCommand(command, ...args) {
         command.execute(...args);
         this.history.push(command);
-        console.log(this.history)
     }
 
-    undo(){
+    undo() {
         const command = this.history.pop();
         command.undo();
     }
