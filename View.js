@@ -7,8 +7,6 @@ export default class View {
         this.btnAddNote = this.root.querySelector(".add-note");
         this.searchInput = document.querySelector("[data-search]");
         this.btnUndo = document.querySelector('.undo');
-
-        this.temporaryText = '';
     }
 
     displayNotes(notes) {
@@ -21,9 +19,8 @@ export default class View {
     }
 
     createListItemHTML(id, content, created, updated = new Date()) {
-        const template = document.querySelector(".template").content;
         const fragment = document.createDocumentFragment();
-
+        const template = document.querySelector(".template").content;
         const cont = template.querySelector(".container");
         const note = template.querySelector(".note");
         const noteCreate = template.querySelector(".note-creation");
