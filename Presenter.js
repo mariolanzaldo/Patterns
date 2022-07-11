@@ -44,7 +44,7 @@ class Presenter {
 
     handleDeleteNote = (args) => {
         if (args.class === 'note-remove') {
-            let doDelete = confirm("Are you sure you want to delete this note?");
+            const doDelete = confirm("Are you sure you want to delete this note?");
             if (doDelete) {
                 const deleteNoteCommand = new DeleteCommand(this.model, this.view);
                 this.manager.executeCommand(deleteNoteCommand, args.id);
@@ -53,7 +53,7 @@ class Presenter {
     }
 
     handleSearchNote = (noteToSearch) => {
-        let list = this.model.searchNote(noteToSearch);
+        const list = this.model.searchNote(noteToSearch);
         const found = list.filter(el => el != undefined);
         this.view.filterNotes(found, noteToSearch);
     }
@@ -127,7 +127,7 @@ class EditCommand {
     execute(args) {
         const id = args.id;
         const content = args.content;
-        let noteToSave = this.model.getAllNotes().filter(element => element.id == id);
+        const noteToSave = this.model.getAllNotes().filter(element => element.id == id);
         const copy = JSON.parse(JSON.stringify(noteToSave));
         this.previousNote.push(copy);
         this.model.saveNote({ id, content });
