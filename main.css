@@ -42,11 +42,14 @@ header {
     border-radius: 10px;
     font-size: 30px;
     cursor: pointer;
+    transition: 0.3s ease-in-out;
 
 }
 
 .undo:hover {
     background: rgba(0, 0, 0, 0.5);
+    filter: hue-rotate(-20deg);
+    transform: scale(0.9);
 }
 
 .button-container {
@@ -103,11 +106,13 @@ header {
     font-size: 100px;
     color: whitesmoke;
     cursor: pointer;
+    transition: 0.3s ease-in-out;
 }
 
 .add-note:hover {
     background: rgba(0, 0, 0, 0.5);
-
+    filter: hue-rotate(-20deg);
+    transform: scale(0.9);
 }
 
 .note-creation,
@@ -124,22 +129,27 @@ header {
     cursor: pointer;
     color: whitesmoke;
     border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+
 }
 
 .note-remove:hover {
     background-color: rgb(71, 85, 121);
+    filter: hue-rotate(-20deg);
+    transform: scale(0.9);
 }
 
-.note-save {
-    background-color: rgb(19, 10, 49);
-    border: none;
-    cursor: pointer;
+.not-saved {
+    display: flex;
+    background-color: #453389;
+    border: 2px solid #ddda0b;
+    border-radius: 3px;
     color: whitesmoke;
-    border-radius: 8px;
-}
-
-.note-save:hover {
-    background-color: rgb(71, 85, 121);
+    font-weight: bolder;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Search bar functionality*/
