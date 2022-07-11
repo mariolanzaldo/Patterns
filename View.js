@@ -57,11 +57,31 @@ export default class View {
     }
 
     bindEditNote() {
-        this.notesList.addEventListener('click', item => {
-            item.preventDefault();
-            if (item.target.className === 'note-save') {
-                const date = item.target.parentElement.querySelector('.note-update').textContent;
-                pubsub.publish(`editNote`, { content: item.target.previousElementSibling.value.trim(), id: item.target.parentElement.dataset.noteId, updatedUndo: date });
+        const fragment = document.createDocumentFragment();
+        const template = document.querySelector('.template2').content;
+
+        this.notesList.addEventListener('dblclick', event => {
+            if (event.target.className === 'note') {
+                const note = event.target;
+                const noteContainer = event.target.parentElement;
+                const date = event.target.parentElement.querySelector('.note-update').textContent;
+
+                note.readOnly = false;
+
+                note.addEventListener('input', item => {
+                    if (!noteContainer.querySelector('.not-saved')) {
+                        const clone = template.cloneNode(true);
+                        fragment.appendChild(clone);
+                        noteContainer.appendChild(fragment);
+                    }
+                    item.stopPropagation();
+                });
+                note.addEventListener('focusout', item => {
+                    const chart = event.target.parentElement.querySelector(`.not-saved`);
+                    chart ? chart.remove() : chart;
+                    item.stopPropagation();
+                    pubsub.publish(`editNote`, { content: event.target.value.trim(), id: noteContainer.dataset.noteId, updatedUndo: date });
+                });
             }
         });
 
@@ -69,8 +89,8 @@ export default class View {
 
             if (e.key == 'Tab' && e.target.className === "note") {
                 e.preventDefault();
-                let start = e.target.selectionStart;
-                let end = e.target.selectionEnd;
+                const start = e.target.selectionStart;
+                const end = e.target.selectionEnd;
 
                 e.target.value = e.target.value.substring(0, start) + "\t" + e.target.value.substring(end);
                 e.target.selectionEnd = start + 1;
@@ -81,11 +101,11 @@ export default class View {
     filterNotes(found, value) {
         const containers = document.getElementsByClassName("container");
         found.forEach(element => {
-            let container = document.getElementById(`${element.id}`);
+            const container = document.getElementById(`${element.id}`);
             container.classList.toggle("hide", element.id);
         });
         if (value.length <= 0) {
-            for (let i in containers) {
+            for (const i in containers) {
                 if (typeof containers[i] == 'object') {
                     containers[i].classList.toggle("hide", false);
                 }
