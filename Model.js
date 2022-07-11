@@ -23,7 +23,7 @@ export default class Model {
     }
 
     addNote(note) {
-        let notes = this.getAllNotes();
+        const notes = this.getAllNotes();
         let noteObject = {};
         if (!note) {
             noteObject = {
@@ -60,7 +60,7 @@ export default class Model {
     dragDropNote(newOrder) {
         const oldOrder = [];
         let swappedElement = [];
-        let newData = this.getAllNotes();
+        const newData = this.getAllNotes();
         this.getAllNotes().forEach(item => {
             oldOrder.push(item.id);
         });
@@ -71,7 +71,7 @@ export default class Model {
             }
         }
 
-        let obj = { first: swappedElement[0], second: swappedElement[1] };
+        const obj = { first: swappedElement[0], second: swappedElement[1] };
         let temp;
         temp = newData[obj.first];
         newData[obj.first] = newData[obj.second];
