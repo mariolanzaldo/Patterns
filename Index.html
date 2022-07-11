@@ -26,11 +26,16 @@
 
     <template class="template">
         <div class="container" draggable="true">
-            <textarea class="note" placeholder="Empty Note"></textarea>
-            <button class="note-save" type="button">Save</button>
+            <textarea class="note" placeholder="Empty Note" readonly></textarea>
+            <!-- <button class="note-save" type="button">Save</button> -->
             <button class="note-remove" type="button">Remove</button>
             <div class="note-creation"></div>
             <div class="note-update"></div>
+        </div>
+    </template>
+    <template class="template2">
+        <div class="not-saved">
+            <p>This note is not saved yet!</p>
         </div>
     </template>
     <script src="./Presenter.js" type="module"></script>
