@@ -64,14 +64,11 @@ class Presenter {
     }
 
     handleUndo = () => {
-        let value;
         if (this.manager.history.length > 0) {
-            value = false;
             this.manager.undo();
         } else if (this.manager.history.length <= 0) {
-            value = true;
+            return;
         }
-        this.view.disableUndo(value);
     }
 }
 
