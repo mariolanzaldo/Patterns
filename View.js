@@ -65,6 +65,7 @@ export default class View {
                 const note = event.target;
                 const noteContainer = event.target.parentElement;
                 const date = event.target.parentElement.querySelector('.note-update').textContent;
+                note.style.backgroundColor = 'rgb(176, 172, 172)';
 
                 note.readOnly = false;
 
@@ -73,6 +74,7 @@ export default class View {
                         const clone = template.cloneNode(true);
                         fragment.appendChild(clone);
                         noteContainer.appendChild(fragment);
+
                     }
                     item.stopPropagation();
                 });
@@ -124,10 +126,6 @@ export default class View {
                 pubsub.publish('undoAction');
             }
         });
-    }
-
-    disableUndo(value) {
-        this.btnUndo.disabled = value;
     }
 
     bindSearchNote() {
