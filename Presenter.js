@@ -8,6 +8,7 @@ class Presenter {
         this.model = model;
         this.view = view;
         this.manager = new CommandManager();
+        this.oldNotes = this.model.getAllNotes();
 
         this.view.bindAddNote();
         this.view.bindDeleteNote();
@@ -17,7 +18,7 @@ class Presenter {
         this.view.bindUndo();
 
         //Display initial notes
-        this.onNotesListChanged(this.model.getAllNotes());
+        this.onNotesListChanged(this.oldNotes);
 
         //Subscribers
         pubsub.subscribe(`deleteNote`, this.handleDeleteNote);
@@ -46,7 +47,7 @@ class Presenter {
         if (args.class === 'note-remove') {
             const doDelete = confirm("Are you sure you want to delete this note?");
             if (doDelete) {
-                const deleteNoteCommand = new DeleteCommand(this.model, this.view);
+                const deleteNoteCommand = new DeleteCommand(this.model, this.view, this.oldNotes);
                 this.manager.executeCommand(deleteNoteCommand, args.id);
             }
         }
@@ -74,11 +75,12 @@ class Presenter {
 
 //Commands
 class DeleteCommand {
-    constructor(model, view) {
+    constructor(model, view, oldNotes) {
         this.model = model;
         this.view = view;
         this.noteDeleted = [];
         this.notes = JSON.parse(JSON.stringify(this.model.getAllNotes()));
+        this.oldNotes = oldNotes;
     }
 
     execute(id) {
@@ -86,13 +88,14 @@ class DeleteCommand {
         this.noteDeleted.push(noteToSave[0]);
         const newNotes = this.model.deleteNote(id);
         this.view.displayNotes(newNotes);
-
     }
 
     undo() {
+        let initialIdOrder = [];
+        this.oldNotes.forEach(element => initialIdOrder.push(element.id));
         const lastNote = this.noteDeleted.pop();
-        this.model.addNote(lastNote);
-        this.view.displayNotes(this.model.getAllNotes());
+        this.model.addNote(lastNote, initialIdOrder);
+        this.view.displayNotes(this.notes);
     }
 }
 
