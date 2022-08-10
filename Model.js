@@ -1,5 +1,6 @@
 export default class Model {
     constructor() {
+        this.index = [];
     }
 
     getAllNotes() {
@@ -22,7 +23,7 @@ export default class Model {
         }
     }
 
-    addNote(note) {
+    addNote(note, initialIdOrder) {
         const notes = this.getAllNotes();
         let noteObject = {};
         if (!note) {
@@ -36,6 +37,7 @@ export default class Model {
             return noteObject
         } else if (note) {
             notes.push(note);
+            notes.sort((a, b) => initialIdOrder.indexOf(a.id) - initialIdOrder.indexOf(b.id));
             localStorage.setItem("stickynotes-notes", JSON.stringify(notes));
         }
     }
